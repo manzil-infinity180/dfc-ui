@@ -13,10 +13,6 @@ import (
 )
 
 var (
-	// raw = []byte(strings.TrimSpace(`
-	// 	FROM node
-	// 	RUN apt-get update && apt-get install -y nano
-	// `))
 	org = "example.com"
 )
 
@@ -39,29 +35,44 @@ func main() {
 
 func readDockerfileFromUpload(ctx *gin.Context) {
 	req := ctx.Request
-	file, handler, err := req.FormFile("dockerfile")
-	if err != nil {
-		ctx.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
+	var content []byte
+	var err error
+	contentType := req.Header.Get("Content-Type")
+	if strings.HasPrefix(contentType, "text/plain") || strings.HasPrefix(contentType, "application/text") {
+		content, err = io.ReadAll(req.Body)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "failed to read body: " + err.Error()})
+			return
+		}
+	} else if strings.HasPrefix(contentType, "multipart/form-data") {
+		file, handler, err := req.FormFile("dockerfile")
+		if err != nil {
+			ctx.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
+			return
+		}
+		defer file.Close()
+		fmt.Printf("Received file: %s\n", handler.Filename)
+		// Read file contents
+		content, err = io.ReadAll(file)
+		if err != nil {
+			ctx.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
+			return
+		}
+	} else {
+		ctx.JSON(http.StatusUnsupportedMediaType, gin.H{"error": "Unsupported Content-Type: " + contentType})
 		return
 	}
-	defer file.Close()
-	fmt.Printf("Received file: %s\n", handler.Filename)
-	// Read file contents
-	content, err := io.ReadAll(file)
-	if err != nil {
-		ctx.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
-		return
-	}
+
 	fmt.Println("=== Dockerfile Content ===")
 	fmt.Println(string(content))
 	fmt.Println("=== Dockerfile After Content ===")
-	new_dockerfile := demoConversion(string(content))
-
-	fmt.Println(new_dockerfile)
+	newDockerfile := demoConversion(string(content))
+	fmt.Println(newDockerfile)
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"status":         "ok",
 		"old_dockerfile": string(content),
-		"new_dockerfile": new_dockerfile.String(),
+		"new_dockerfile": newDockerfile.String(),
+		"lines":          newDockerfile.Lines,
 	})
 
 }
@@ -87,8 +98,5 @@ func demoConversion(dockerfile_raw string) *dfc.Dockerfile {
 	if err != nil {
 		log.Fatalf("dockerfile.Convert(): %v", err)
 	}
-
-	// Print converted Dockerfile content
-	fmt.Println(converted)
 	return converted
 }
