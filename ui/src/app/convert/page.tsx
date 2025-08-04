@@ -6,6 +6,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Editor from "@monaco-editor/react";
 import { DiffEditor } from "@monaco-editor/react";
+import { Label } from "@/components/ui/label";
 
 export default function Code() {
   console.log("Component rendered");
@@ -51,26 +52,28 @@ export default function Code() {
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <div>
-              <Image
-                className="dark px-4 py-2"
-                src="/dfc-ui.svg"
-                alt="dfc logo"
-                width={180}
-                height={38}
-                priority
-              />
-        <code className="text-lg tracking-wide bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-4 py-2 rounded">
-        (D)ocker(F)ile (C)onverter
-      </code>
-      </div>
-      
+      <header className="flex flex-col items-center justify-center pt-8 pb-6 px-8">
+        <div className="flex flex-col items-center gap-2 mb-8 my-2">
+          <Image
+            className="dark"
+            src="/dfc-ui.svg"
+            alt="DFC logo"
+            width={180}
+            height={38}
+            priority
+          />
+          <code className="text-lg tracking-wide bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-4 py-2 rounded-lg">
+            (D)ocker(F)ile (C)onverter
+          </code>
+        </div>
+      </header>
+
       <button
         type="button"
         onClick={makeRequestToBackendServer}
         className="px-4 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
       >
-        Hello
+        Do it Again
       </button>
       <div>
         <form
@@ -79,7 +82,7 @@ export default function Code() {
         >
           <input
             type="file"
-            className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600"
+            className="w-64 py-2 px-2 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600"
             onChange={handleFileChange}
           />
           <button
@@ -89,12 +92,18 @@ export default function Code() {
             Convert/Upload Dockerfile
           </button>
         </form>
-        {convertedFileContent && <div>
-            <label>
-              <input type="checkbox" onChange={() => setDiffEditor((s) => !s)}/>
-              Diff Editor
+        {convertedFileContent && (
+          <div className="flex justify-center items-center my-4">
+            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+              <input
+                type="checkbox"
+                onChange={() => setDiffEditor((s) => !s)}
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span>Show Diff Editor</span>
             </label>
-          </div>}
+          </div>
+        )}
       </div>
 
       <div className="flex w-full min-h-screen gap-x-4 px-4">
