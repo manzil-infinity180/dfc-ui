@@ -7,9 +7,9 @@ export default function Home() {
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <Image
           className="dark"
-          src="/dfc.png"
+          src="/dfc-ui.svg"
           alt="dfc logo"
-          width={180}
+          width={320}
           height={38}
           priority
         />
