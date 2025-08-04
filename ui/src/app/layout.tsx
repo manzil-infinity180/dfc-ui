@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DFC-UI",
-  description: "In love of Chaninguard ❤️",
+  title: "dfc-UI",
+  description: "In the love of Chaninguard ❤️",
 };
 
 export default function RootLayout({
@@ -24,6 +24,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+                <link rel="icon" href="/dfc.png" />
+              </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
