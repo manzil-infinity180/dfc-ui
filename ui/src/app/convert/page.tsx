@@ -1,14 +1,13 @@
 "use client";
 import DockerfileLineToString from "@/lib/dfcString";
-import makeRequestToBackendServer from "@/lib/makeRequest";
 import DockerfileLine from "@/types/DockerfileLine";
 import { useState } from "react";
 import Image from "next/image";
 import Editor from "@monaco-editor/react";
 import { DiffEditor } from "@monaco-editor/react";
-import { Label } from "@/components/ui/label";
+import Code from "@/component/code";
 
-export default function Code() {
+export default function Convert() {
   console.log("Component rendered");
   const [file, setFile] = useState<File | null>(null);
   const [, setFileName] = useState<string | null>(null);
@@ -16,6 +15,25 @@ export default function Code() {
   const [originalFileContent, setOriginalFileContent] = useState<string>("");
   const [convertedFileContent, setConvertedFileContent] = useState<string>("");
   const [diffEditor, setDiffEditor] = useState(true);
+
+  async function makeRequestToBackendServer(currentCode: string) {
+    try {
+      const req = await fetch("http://localhost:8000/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+        body: `${currentCode}`,
+      });
+      const data = await req.json();
+      console.log(data);
+      setLines(data.lines);
+      const converted = DockerfileLineToString(data.lines);
+     setConvertedFileContent(converted);
+    } catch (err: unknown) {
+      console.log(err);
+    }
+  }
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (file) {
@@ -62,59 +80,81 @@ export default function Code() {
             height={38}
             priority
           />
-          <code className="text-lg tracking-wide bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-4 py-2 rounded-lg">
-            (D)ocker(F)ile (C)onverter
-          </code>
+          <Code>(D)ocker(F)ile (C)onverter</Code>
         </div>
       </header>
 
       <button
         type="button"
-        onClick={makeRequestToBackendServer}
-        className="px-4 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+        onClick={() => makeRequestToBackendServer(originalFileContent)}
+        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
       >
-        Do it Again
+        Do Again - Conversion
       </button>
-      <div>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col sm:flex-row items-center gap-4 mt-4"
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col sm:flex-row items-center gap-4 mt-4"
+      >
+        <input
+          type="file"
+          className="w-64 py-2 px-2 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600"
+          onChange={handleFileChange}
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
         >
-          <input
-            type="file"
-            className="w-64 py-2 px-2 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600"
-            onChange={handleFileChange}
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-          >
-            Convert/Upload Dockerfile
-          </button>
-        </form>
-        {convertedFileContent && (
-          <div className="flex justify-center items-center my-4">
-            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-              <input
-                type="checkbox"
-                onChange={() => setDiffEditor((s) => !s)}
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <span>Show Diff Editor</span>
-            </label>
-          </div>
-        )}
-      </div>
-
+          Convert/Upload Dockerfile
+        </button>
+      </form>
+      {convertedFileContent && (
+        <div className="flex justify-center items-center my-4">
+          <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+            <input
+              type="checkbox"
+              onChange={() => setDiffEditor((s) => !s)}
+              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span>Show Diff Editor</span>
+          </label>
+        </div>
+      )}
+      {!file && (
+        <div className="flex w-full min-h-screen gap-x-4 px-4 justify-center m-12">
+          <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
+            <h1 className="font-mono text-xl my-2">How to Convert:</h1>
+            <li className="mb-2 tracking-[-.01em]">
+              Upload <Code>Dockerfile</Code> from your computer!
+            </li>
+            <li className="tracking-[-.01em]">
+              Click on <Code>Convert/Upload Dockerfile</Code>
+            </li>
+            <li className="tracking-[-.01em]">
+              Make changes to <Code>Original Dockerfile</Code>
+            </li>
+            <li className="tracking-[-.01em]">
+              Click on <Code>Do Again - Conversion</Code> to Convert!!
+            </li>
+            <h1 className="font-mono text-xl my-2"> Happy dfC!!!</h1>
+          </ol>
+        </div>
+      )}
       <div className="flex w-full min-h-screen gap-x-4 px-4">
         {file && (
           <div className="w-[50%] border-r border-gray-300">
+            <div className="items-center justify-center">
+              {convertedFileContent.length > 0 && (
+                <Code>Original Dockerfile</Code>
+              )}
+            </div>
+
             {/* {convertedFileContent.length > 0 && ( */}
             <Editor
               height="90vh"
               width="100%" // full width of the 40% parent
               language="dockerfile"
-              defaultValue={originalFileContent}
+              value={originalFileContent}
+              onChange={(s) => setOriginalFileContent(s ?? "")}
               theme="vs-dark"
               options={{
                 // readOnly: true,
@@ -128,15 +168,20 @@ export default function Code() {
         )}
 
         <div className="w-[50%]">
-          {/* Right side content goes here */}
-          {/* <p>This is the right pane (e.g. CVE results, suggestions, etc)</p>
-           */}
+          {convertedFileContent.length > 0 && (
+            <div className="items-center justify-center">
+              {convertedFileContent.length > 0 && (
+                <Code>Converted Dockerfile</Code>
+              )}
+            </div>
+          )}
           {convertedFileContent.length > 0 && diffEditor && (
             <Editor
               height="90vh"
               width="100%" // full width of the 40% parent
               language="dockerfile"
-              defaultValue={convertedFileContent}
+              value={convertedFileContent}
+              onChange={(s) => setConvertedFileContent(s ?? "")}
               theme="vs-dark" // optional
               options={{
                 // readOnly: true,
@@ -164,6 +209,7 @@ export default function Code() {
           )}
         </div>
       </div>
+
     </div>
   );
 }
