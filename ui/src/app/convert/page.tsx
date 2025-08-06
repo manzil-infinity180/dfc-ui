@@ -210,7 +210,7 @@ export default function Convert() {
               theme="vs-dark"
               options={{
                 // readOnly: true,
-                fontSize: 16, // increase font size (default is 14)
+                fontSize: 14, // increase font size (default is 14)
                 lineNumbers: "on",
                 minimap: { enabled: false }, // optional: hides minimap
               }}
@@ -237,7 +237,7 @@ export default function Convert() {
               theme="vs-dark" // optional
               options={{
                 // readOnly: true,
-                fontSize: 16, // increase font size (default is 14)
+                fontSize: 14, // increase font size (default is 14)
                 lineNumbers: "on",
                 minimap: { enabled: false }, // optional: hides minimap
               }}
@@ -253,7 +253,7 @@ export default function Convert() {
               theme="vs-dark" // or "light", or see other themes below
               options={{
                 // readOnly: true,
-                fontSize: 16, // increase font size here
+                fontSize: 14, // increase font size here
                 wordWrap: "on",
                 renderSideBySide: false, // true: side-by-side, false: inline
                 minimap: { enabled: false },
