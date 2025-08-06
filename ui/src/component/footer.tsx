@@ -47,7 +47,7 @@ export default function Footer() {
           width={36}
           height={16}
         />
-        Made By <b>Rahul Vishwakarma</b> <Code>(@rahulxf)</Code> →
+        Made By<Code>@rahulxf</Code> →
       </a>
     </footer>
   );

@@ -19,7 +19,10 @@ export default function Home() {
             <Code>(D)ocker(F)ile (C)onverter</Code>
           </li>
           <li className="tracking-[-.01em]">
-            <Code>UI</Code> to convert <Code>Dockerfiles</Code> to use <Code>Chainguard</Code> Images
+            <Code>UI</Code> to convert<Code>Dockerfiles</Code>to use<Code>Chainguard Images.</Code>
+          </li>
+          <li className="tracking-[-.01em]">
+            Built on top of<Code>dfc Go SDK.</Code>
           </li>
         </ol>
 
