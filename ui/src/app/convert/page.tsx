@@ -1,7 +1,7 @@
 "use client";
 import DockerfileLineToString from "@/lib/dfcString";
 import DockerfileLine from "@/types/DockerfileLine";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Editor from "@monaco-editor/react";
 import { DiffEditor } from "@monaco-editor/react";
@@ -10,11 +10,23 @@ import Code from "@/component/code";
 export default function Convert() {
   console.log("Component rendered");
   const [file, setFile] = useState<File | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [, setFileName] = useState<string | null>(null);
   const [, setLines] = useState<Array<DockerfileLine> | null>(null);
   const [originalFileContent, setOriginalFileContent] = useState<string>("");
   const [convertedFileContent, setConvertedFileContent] = useState<string>("");
   const [diffEditor, setDiffEditor] = useState(true);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   async function makeRequestToBackendServer(currentCode: string) {
     try {
@@ -29,7 +41,7 @@ export default function Convert() {
       console.log(data);
       setLines(data.lines);
       const converted = DockerfileLineToString(data.lines);
-     setConvertedFileContent(converted);
+      setConvertedFileContent(converted);
     } catch (err: unknown) {
       console.log(err);
     }
@@ -68,10 +80,10 @@ export default function Convert() {
     }
   };
 
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <header className="flex flex-col items-center justify-center pt-8 pb-6 px-8">
-        <div className="flex flex-col items-center gap-2 mb-8 my-2">
+  if (isMobile) {
+    return (
+      <div className="font-sans min-h-screen grid grid-rows-[auto_1fr_auto] bg-white dark:bg-black p-6 sm:p-12">
+        <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
           <Image
             className="dark"
             src="/dfc-ui.svg"
@@ -81,64 +93,104 @@ export default function Convert() {
             priority
           />
           <Code>(D)ocker(F)ile (C)onverter</Code>
-        </div>
-      </header>
-
-      <button
-        type="button"
-        onClick={() => makeRequestToBackendServer(originalFileContent)}
-        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-      >
-        Do Again - Conversion
-      </button>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col sm:flex-row items-center gap-4 mt-4"
-      >
-        <input
-          type="file"
-          className="w-64 py-2 px-2 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600"
-          onChange={handleFileChange}
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-        >
-          Convert/Upload Dockerfile
-        </button>
-      </form>
-      {convertedFileContent && (
-        <div className="flex justify-center items-center my-4">
-          <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-            <input
-              type="checkbox"
-              onChange={() => setDiffEditor((s) => !s)}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          <h2 className="text-xl sm:text-2xl font-semibold">Go to desktop.</h2>
+          <p className="text-gray-500 dark:text-gray-400 max-w-md">
+            I didn’t make this page mobile friendly. I have a life.
+          </p>
+          <a
+            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+            href="https://www.linkedin.com/in/rahul-vishwakarma-553874256/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              className="dark"
+              aria-hidden
+              src="/rahulxf.png"
+              alt="Globe icon"
+              width={36}
+              height={16}
             />
-            <span>Show Diff Editor</span>
-          </label>
+            Made By<Code>@rahulxf</Code> →
+          </a>
         </div>
-      )}
-      {!file && (
-        <div className="flex w-full min-h-screen gap-x-4 px-4 justify-center m-12">
-          <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-            <h1 className="font-mono text-xl my-2">How to Convert:</h1>
-            <li className="mb-2 tracking-[-.01em]">
-              Upload <Code>Dockerfile</Code> from your computer!
-            </li>
-            <li className="tracking-[-.01em]">
-              Click on <Code>Convert/Upload Dockerfile</Code>
-            </li>
-            <li className="tracking-[-.01em]">
-              Make changes to <Code>Original Dockerfile</Code>
-            </li>
-            <li className="tracking-[-.01em]">
-              Click on <Code>Do Again - Conversion</Code> to Convert!!
-            </li>
-            <h1 className="font-mono text-xl my-2"> Happy dfC!!!</h1>
-          </ol>
-        </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="font-sans min-h-screen grid grid-rows-[auto_1fr_auto] p-6 sm:p-12 gap-10 bg-white dark:bg-black">
+      <header className="flex flex-col items-center justify-center pt-8 pb-6 px-8">
+        <Image
+          className="dark"
+          src="/dfc-ui.svg"
+          alt="DFC logo"
+          width={180}
+          height={38}
+          priority
+        />
+        <Code>(D)ocker(F)ile (C)onverter</Code>
+      </header>
+      <main className="w-full max-w-xl mx-auto flex flex-col items-center gap-6">
+        {convertedFileContent.length > 0 && (
+          <button
+            type="button"
+            onClick={() => makeRequestToBackendServer(originalFileContent)}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+          >
+            Do Again - Conversion
+          </button>
+        )}
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row items-center gap-4 mt-4"
+        >
+          <input
+            type="file"
+            className="w-64 py-2 px-2 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600"
+            onChange={handleFileChange}
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+          >
+            Convert/Upload Dockerfile
+          </button>
+        </form>
+        {convertedFileContent && (
+          <div className="flex justify-center items-center mt-4">
+            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+              <input
+                type="checkbox"
+                onChange={() => setDiffEditor((s) => !s)}
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span>Show Diff Editor</span>
+            </label>
+          </div>
+        )}
+        {!file && (
+          <div className="flex w-full min-h-screen gap-x-4 px-4 justify-center m-12">
+            <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
+              <h1 className="font-mono text-xl my-2">How to Convert:</h1>
+              <li className="mb-2 tracking-[-.01em]">
+                Upload <Code>Dockerfile</Code> from your computer!
+              </li>
+              <li className="tracking-[-.01em]">
+                Click on <Code>Convert/Upload Dockerfile</Code>
+              </li>
+              <li className="tracking-[-.01em]">
+                Make changes to <Code>Original Dockerfile</Code>
+              </li>
+              <li className="tracking-[-.01em]">
+                Click on <Code>Do Again - Conversion</Code> to Convert!!
+              </li>
+              <h1 className="font-mono text-xl my-2"> Happy dfC!!!</h1>
+            </ol>
+          </div>
+        )}
+      </main>
+
       <div className="flex w-full min-h-screen gap-x-4 px-4">
         {file && (
           <div className="w-[50%] border-r border-gray-300">
@@ -209,7 +261,6 @@ export default function Convert() {
           )}
         </div>
       </div>
-
     </div>
   );
 }
