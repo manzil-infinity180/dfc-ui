@@ -29,6 +29,12 @@ func main() {
 		c.Next()
 	})
 	// demoConversion()
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusAccepted, gin.H{
+			"status":  "ok",
+			"message": "everything is fine ! Happy dfc-ing",
+		})
+	})
 	router.POST("/upload", readDockerfileFromUpload)
 	router.Run(":8000")
 }

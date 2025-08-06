@@ -6,7 +6,7 @@ import Image from "next/image";
 import Editor from "@monaco-editor/react";
 import { DiffEditor } from "@monaco-editor/react";
 import Code from "@/component/code";
-
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 export default function Convert() {
   console.log("Component rendered");
   const [file, setFile] = useState<File | null>(null);
@@ -30,7 +30,7 @@ export default function Convert() {
 
   async function makeRequestToBackendServer(currentCode: string) {
     try {
-      const req = await fetch("http://localhost:8000/upload", {
+      const req = await fetch(`${BASE_URL}/upload`, {
         method: "POST",
         headers: {
           "Content-Type": "text/plain",
@@ -52,7 +52,7 @@ export default function Convert() {
       const formData = new FormData();
       formData.append("dockerfile", file);
       try {
-        const req = await fetch("http://localhost:8000/upload", {
+        const req = await fetch(`${BASE_URL}/upload`, {
           method: "POST",
           body: formData,
         });
