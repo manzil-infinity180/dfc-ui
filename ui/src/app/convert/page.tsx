@@ -255,7 +255,8 @@ export default function Convert() {
                 // readOnly: true,
                 fontSize: 16, // increase font size here
                 wordWrap: "on",
-                renderSideBySide: true, // true: side-by-side, false: inline
+                renderSideBySide: false, // true: side-by-side, false: inline
+                minimap: { enabled: false },
               }}
             />
           )}
