@@ -1,0 +1,10 @@
+name: Ping Render Service
+on:
+  schedule:
+    - cron: '*/13 * * * *'  # every 13 minutes (UTC)
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping render.com
+        run: curl -sSf https://dfc-ui.onrender.com || echo "Ping failed"
