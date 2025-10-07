@@ -6,7 +6,7 @@ import Image from "next/image";
 import Editor from "@monaco-editor/react";
 import { DiffEditor } from "@monaco-editor/react";
 import Code from "@/component/code";
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_API_URL;
 export default function Convert() {
   console.log("Component rendered");
   const [file, setFile] = useState<File | null>(null);
